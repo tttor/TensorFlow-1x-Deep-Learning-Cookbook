@@ -1,7 +1,9 @@
 import tensorflow as tf
 
+# "placeholder" for feeding through feed_dict argument in the run() or eval() function call
 x = tf.placeholder("float")
 y = 2 * x
+
 data = tf.random_uniform([4,5],10)
 
 ## All constants, variables, and placeholders will be defined in the computation graph section of the code.
