@@ -1,5 +1,5 @@
 '''
-NN implementation of Q learning.
+A **simplistic** NN implementation of Q learning.
 the neural networks are employed as a function approximator to predict the value function (Q).
 NN has output nodes equal to the number of possible actions, and
 their output signifies the value function of the corresponding action.
