@@ -1,6 +1,7 @@
-# The agents in this recipe are **not** learning any policy;
-# they make their decision based on their initial set of weights (fixed policy).
-# pip3 install "gym[atari]"
+'''
+The agents in this recipe are **not** learning any policy;
+they make their decision based on their initial set of weights (fixed policy).
+'''
 import os
 import gym
 import numpy as np

@@ -1,5 +1,11 @@
 # Chapter 9 Reinforcement Learning
-Recipes:
+
+## install
+* `pip3 install "gym[atari]"`
+* `pip3 install scikit-learn`
+* `pip3 install scipy`
+
+## Recipes:
 * Open AI gym
 * Neural Network Agent to play PacMan
 * Q Learning to Balance Cartpole
