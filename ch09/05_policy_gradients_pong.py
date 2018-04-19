@@ -110,6 +110,9 @@ class PolicyNetwork(object):
         tf_discounted_epr /= tf.sqrt(tf_variance + 1e-6)
 
         # Define Optimizer, compute and apply gradients
+        # TODO: why set: optimizer.compute_gradients(..., grad_loss=tf_discounted_epr)?
+        # Is that where the loss modulation happens?
+        # TODO: why l2_loss?
         self.tf_aprob = self.tf_policy_forward(self.tf_x)
         loss = tf.nn.l2_loss(self.tf_y - self.tf_aprob)
         optimizer = tf.train.RMSPropOptimizer(eta, decay=decay)
