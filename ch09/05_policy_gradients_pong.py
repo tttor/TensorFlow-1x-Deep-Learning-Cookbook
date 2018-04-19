@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from gym import wrappers
 
-def main()
+def main():
     # Create Game Environment
     env_name = "Pong-v0"
     env = gym.make(env_name)
-    env = wrappers.Monitor(env, './log/pong', force=True)
+    env = wrappers.Monitor(env, './log', force=True)
     n_actions = env.action_space.n  # Number of possible actions
 
     # Initializing Game and State(t-1), action, reward, state(t)
@@ -20,28 +20,31 @@ def main()
     running_reward = None
     running_rewards = []
     reward_sum = 0
-    n = 0
+    episode_idx = 0
     done = False
     n_size = 80
-    num_episodes = 500
+    n_episodes = 500
 
     #Create Agent
-    agent = PolicyNetwork(n_size)
+    agent = PolicyNetwork(n_size, n_actions)
 
     # training loop
-    while not done and n< num_episodes:
+    while (episode_idx < n_episodes):
         # Preprocess the observation
         cur_x = preprocess(obs)
         x = cur_x - prev_x if prev_x is not None else np.zeros(n_size*n_size)
         prev_x = cur_x
 
-        #Predict the action
-        aprob = agent.predict_UP(x) ; aprob = aprob[0,:]
-
+        # Predict the action
+        aprob = agent.predict_UP(x)
+        aprob = aprob[0,:]
 
         action = np.random.choice(n_actions, p=aprob)
         #print(action)
-        label = np.zeros_like(aprob) ; label[action] = 1
+
+        # Fake the true label, assume the taken action is the right action
+        label = np.zeros_like(aprob)
+        label[action] = 1
 
         # Step the environment and get new measurements
         obs, reward, done, info = env.step(action)
@@ -55,23 +58,23 @@ def main()
             # update running reward
             running_reward = reward_sum if running_reward is None else running_reward * 0.99 + reward_sum * 0.01
             running_rewards.append(running_reward)
+            if episode_idx % 10 == 0:
+                print ('ep {}: reward: {}, mean reward: {:3f}'.format(episode_idx, reward_sum, running_reward))
+            else:
+                print ('\tep {}: reward: {}'.format(episode_idx, reward_sum))
+
+            # update the network
             feed = {agent.tf_x: np.vstack(xs), agent.tf_epr: np.vstack(rs), agent.tf_y: np.vstack(ys)}
             agent.update(feed)
-            # print progress console
-            if n % 10 == 0:
-                print ('ep {}: reward: {}, mean reward: {:3f}'.format(n, reward_sum, running_reward))
-            else:
-                print ('\tep {}: reward: {}'.format(n, reward_sum))
 
             # Start next episode and save model
+            if episode_idx % 50 == 0:
+                agent.save(episode_idx)
+
             xs, rs, ys = [], [], []
             obs = env.reset()
-            n += 1 # the Next Episode
-
+            episode_idx += 1 # the Next Episode
             reward_sum = 0
-            if n % 50 == 0:
-                agent.save()
-            done = False
 
     plt.plot(running_rewards)
     plt.xlabel('episodes')
@@ -80,7 +83,8 @@ def main()
     env.close()
 
 class PolicyNetwork(object):
-    def __init__(self, N_SIZE, h=200, gamma=0.99, eta=1e-3, decay=0.99, save_path = 'models2/pong.ckpt' ):
+    def __init__(self, N_SIZE, n_actions, \
+                 h=200, gamma=0.99, eta=1e-3, decay=0.99, save_path = './log/pong.ckpt' ):
         self.gamma = gamma
         self.save_path = save_path
 
@@ -162,9 +166,9 @@ class PolicyNetwork(object):
             saver = tf.train.Saver(tf.global_variables())
             episode_number = int(load_path.split('-')[-1])
 
-    def save(self):
-        self.saver.save(self.session, self.save_path, global_step=n)
-        print("SAVED MODEL #{}".format(n))
+    def save(self, episode_idx):
+        self.saver.save(self.session, self.save_path, global_step=episode_idx)
+        print("SAVED MODEL #{}".format(episode_idx))
 
 # downsampling
 def preprocess(I):
