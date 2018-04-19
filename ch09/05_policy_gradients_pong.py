@@ -1,4 +1,4 @@
-# Adpted from gist.github.com/karpathy/a4166c7fe253700972fcbc77e4ea32c5
+# Adapted from gist.github.com/karpathy/a4166c7fe253700972fcbc77e4ea32c5
 import numpy as np
 import gym
 import matplotlib.pyplot as plt
@@ -25,7 +25,7 @@ def main():
     n_size = 80
     n_episodes = 500
 
-    #Create Agent
+    # Create Agent
     agent = PolicyNetwork(n_size, n_actions)
 
     # training loop
@@ -96,7 +96,7 @@ class PolicyNetwork(object):
         self.tf_y = tf.placeholder(dtype=tf.float32, shape=[None, n_actions], name="tf_y")
         self.tf_epr = tf.placeholder(dtype=tf.float32, shape=[None, 1], name="tf_epr")
 
-        # Weights
+        # Weights; initialized using Xavier initialization
         xavier_l1 = tf.truncated_normal_initializer(mean=0, stddev=1. / N_SIZE, dtype=tf.float32)
         self.W1 = tf.get_variable("W1", [N_SIZE * N_SIZE, h], initializer=xavier_l1)
         xavier_l2 = tf.truncated_normal_initializer(mean=0, stddev=1. / np.sqrt(h), dtype=tf.float32)
